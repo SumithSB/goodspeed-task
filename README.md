@@ -129,4 +129,3 @@ _App demo: signup, documents, upload, chat with streaming + citations, session h
 _How the project was built with Cursor: spec-first planning, vertical slices._
 
 **Link:** https://www.loom.com/share/ddab4ce018544ed68de0112ac6ae03fd
-# goodspeed-task
