@@ -1,0 +1,11 @@
+{
+  "extends": "@goodspeed/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declarationMap": false
+  },
+  "include": ["src/**/*"]
+}

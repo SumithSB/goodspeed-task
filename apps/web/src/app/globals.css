@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/*
+  Goodspeed KB — "Retrieval Terminal"
+  Instrument-panel palette: tinted charcoals (not pure black) + phosphor signal
+  + amber warn (a real two-signal readout). IBM Plex Mono/Sans. Sharp 3px radius.
+*/
+
+:root {
+  --background: 150 14% 4%;
+  --surface: 150 11% 6%;
+  --foreground: 140 8% 88%;
+
+  --card: 150 11% 7%;
+  --card-foreground: 140 8% 88%;
+
+  --popover: 150 10% 9%;
+  --popover-foreground: 140 8% 90%;
+
+  /* phosphor signal — the one bold accent (deep emerald, not neon) */
+  --primary: 156 56% 46%;
+  --primary-foreground: 152 45% 5%;
+
+  --secondary: 150 9% 12%;
+  --secondary-foreground: 140 8% 88%;
+
+  --muted: 150 9% 11%;
+  --muted-foreground: 145 6% 54%;
+
+  --accent: 150 11% 13%;
+  --accent-foreground: 145 30% 80%;
+
+  /* low-confidence / second signal */
+  --warn: 38 78% 56%;
+  --warn-foreground: 38 60% 8%;
+
+  --destructive: 4 72% 57%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 150 8% 15%;
+  --input: 150 8% 15%;
+  --ring: 156 56% 46%;
+  --radius: 3px;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-surface: hsl(var(--surface));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-warn: hsl(var(--warn));
+  --color-warn-foreground: hsl(var(--warn-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: var(--radius);
+  --radius-sm: 2px;
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes trace-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px hsl(var(--primary) / 0); }
+}
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  /* faint instrument grid — barely-there, sits under content */
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.22) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.28);
+  color: hsl(var(--foreground));
+}
+
+/* monospaced data/label face used across labels, scores, IDs, headings */
+.font-data {
+  font-family: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
+  font-feature-settings: "ss01", "zero" 1;
+}
+
+/* terminal eyebrow label: › LABEL */
+.terminal-label {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* the live status dot */
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+.animate-fade-up { animation: fade-up 0.4s ease-out both; }
+.animate-trace-in { animation: trace-in 0.32s ease-out both; }
+
+.caret::after {
+  content: "▍";
+  margin-left: 1px;
+  color: hsl(var(--primary));
+  animation: blink 1s step-end infinite;
+}
+
+/* confidence meter fill grows on mount */
+.bar-grow { transform-origin: left; animation: bar-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* scrollbars — thin, instrument-like */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); background-clip: content-box; }
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .status-dot { animation: none; }
+  .caret::after { animation: none; }
+}

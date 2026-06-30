@@ -1,0 +1,24 @@
+{
+  "name": "goodspeed",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "setup": "node scripts/setup.mjs",
+    "db:migrate": "node scripts/apply-migrations.mjs",
+    "db:verify-usage": "node scripts/verify-usage.mjs",
+    "clean": "rm -rf apps/web/.next apps/api/dist .turbo"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.50.2",
+    "pg": "^8.16.3",
+    "turbo": "^2.5.4"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  }
+}

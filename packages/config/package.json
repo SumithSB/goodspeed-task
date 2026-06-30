@@ -1,0 +1,10 @@
+{
+  "name": "@goodspeed/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./base.json": "./typescript-config/base.json",
+    "./nextjs.json": "./typescript-config/nextjs.json",
+    "./nestjs.json": "./typescript-config/nestjs.json"
+  }
+}
