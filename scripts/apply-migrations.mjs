@@ -34,7 +34,7 @@ async function tableExists(supabase, table) {
   throw new Error(`Could not check ${table}: ${error.message}`);
 }
 
-async function applyWithPg(dbUrl, files) {
+async function applyWithPg(dbUrl, files, embeddingDim) {
   const { default: pg } = await import('pg');
   const client = new pg.Client({
     connectionString: dbUrl,
@@ -42,6 +42,13 @@ async function applyWithPg(dbUrl, files) {
   });
   await client.connect();
   try {
+    // Drive the pgvector column width from EMBEDDING_DIMENSION. The init migration
+    // reads this GUC (falling back to 1536), so the embedding dimension stays a
+    // single source of truth in .env rather than a hardcoded literal in SQL.
+    await client.query("SELECT set_config('app.embedding_dim', $1, false)", [
+      String(embeddingDim),
+    ]);
+    console.log(`Using embedding dimension: ${embeddingDim}`);
     for (const file of files) {
       const sql = readFileSync(resolve(migrationsDir, file), 'utf8');
       console.log(`Applying ${file}…`);
@@ -51,6 +58,11 @@ async function applyWithPg(dbUrl, files) {
   } finally {
     await client.end();
   }
+}
+
+function resolveEmbeddingDim(env) {
+  const raw = Number(env.EMBEDDING_DIMENSION);
+  return Number.isInteger(raw) && raw > 0 ? raw : 1536;
 }
 
 function resolveDbUrl(env) {
@@ -122,7 +134,7 @@ Or paste this file into the Supabase SQL Editor:
 
 console.log(`Applying ${filesToApply.length} migration(s) via Postgres…`);
 try {
-  await applyWithPg(dbUrl, filesToApply);
+  await applyWithPg(dbUrl, filesToApply, resolveEmbeddingDim(env));
   console.log('Migrations applied successfully.');
 } catch (err) {
   console.error('Migration failed:', err instanceof Error ? err.message : err);

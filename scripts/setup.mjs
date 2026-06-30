@@ -10,7 +10,6 @@ const migrationsDir = resolve(root, 'supabase/migrations');
 const required = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'SUPABASE_JWT_SECRET',
   'AI_API_KEY',
 ];
 
@@ -55,14 +54,15 @@ const migrationFiles = existsSync(migrationsDir)
   : [];
 
 console.log('\n── Next steps ──');
-console.log('1. Fill .env (see README → Environment variables)');
+console.log('1. Fill .env (see README → Setup → Environment variables)');
 if (migrationFiles.length > 0) {
-  console.log('2. Apply Supabase migrations in order:');
+  console.log('2. Configure Supabase auth URLs (README → Setup → Supabase project setup)');
+  console.log('3. Apply Supabase migrations in order:');
   migrationFiles.forEach((f, i) => console.log(`     ${i + 1}. supabase/migrations/${f}`));
   console.log('   (SQL Editor paste, or pnpm db:migrate with DATABASE_URL / SUPABASE_DB_PASSWORD)');
-  console.log('3. pnpm db:verify-usage   # confirm usage_events + GET /usage');
   console.log('4. pnpm dev');
+  console.log('5. (optional) pnpm db:verify-usage — needs dev server + SERVICE_ROLE + JWT_SECRET');
 } else {
   console.log('2. pnpm dev');
 }
-console.log('\nFull instructions: README.md → Setup (reviewer instructions)');
+console.log('\nFull instructions: README.md → Setup');

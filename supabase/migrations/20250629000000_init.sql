@@ -16,17 +16,29 @@ CREATE TABLE documents (
 
 CREATE INDEX documents_user_id_idx ON documents(user_id);
 
--- Document chunks with embeddings
-CREATE TABLE document_chunks (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  chunk_index INT NOT NULL,
-  content TEXT NOT NULL,
-  embedding vector(1536) NOT NULL,
-  token_count INT NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+-- Document chunks with embeddings.
+-- The embedding dimension is provider-agnostic: it reads the `app.embedding_dim`
+-- GUC (set by scripts/apply-migrations.mjs from EMBEDDING_DIMENSION) and falls back
+-- to 1536 for a raw SQL-editor paste. This is the only dimension-dependent DDL —
+-- the match function below takes an unsized `vector`. Keep EMBEDDING_DIMENSION (.env)
+-- and the embeddings in sync; the API validates every embedding length against it.
+DO $$
+DECLARE
+  dim int := coalesce(nullif(current_setting('app.embedding_dim', true), '')::int, 1536);
+BEGIN
+  EXECUTE format($ddl$
+    CREATE TABLE IF NOT EXISTS document_chunks (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+      user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+      chunk_index INT NOT NULL,
+      content TEXT NOT NULL,
+      embedding vector(%s) NOT NULL,
+      token_count INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  $ddl$, dim);
+END $$;
 
 CREATE INDEX document_chunks_user_id_idx ON document_chunks(user_id);
 CREATE INDEX document_chunks_document_id_idx ON document_chunks(document_id);
@@ -101,9 +113,11 @@ CREATE POLICY messages_insert ON messages FOR INSERT WITH CHECK (user_id = auth.
 CREATE POLICY messages_update ON messages FOR UPDATE USING (user_id = auth.uid());
 CREATE POLICY messages_delete ON messages FOR DELETE USING (user_id = auth.uid());
 
--- Vector similarity search RPC
+-- Vector similarity search RPC.
+-- Takes an unsized `vector` so it never hardcodes a dimension — pgvector infers
+-- the dimension from the passed embedding and matches it against the column.
 CREATE OR REPLACE FUNCTION match_document_chunks(
-  query_embedding vector(1536),
+  query_embedding vector,
   match_count INT DEFAULT 5,
   min_score FLOAT DEFAULT 0.2
 )
